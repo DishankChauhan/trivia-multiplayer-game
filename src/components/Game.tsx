@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { fetchQuestions, FormattedQuestion } from '@/services/question-service'
@@ -21,9 +19,11 @@ const optionVariants = {
 }
 
 interface GameProps {
-  gameStarted: boolean;
-  onGameEndAction: () => Promise<void>;
+  gameStarted: boolean
+  onGameEndAction: () => Promise<void>
 }
+
+type Option = string | number | boolean | null
 
 export default function Game({ gameStarted, onGameEndAction }: GameProps) {
   const [user] = useAuthState(auth)
@@ -128,7 +128,7 @@ export default function Game({ gameStarted, onGameEndAction }: GameProps) {
   useEffect(() => {
     if (gameStarted && !gameOver && timeLeft > 0) {
       timerRef.current = setTimeout(() => {
-        setTimeLeft(prevTime => prevTime - 1)
+        setTimeLeft((prevTime: number) => prevTime - 1)
       }, 1000)
     } else if (timeLeft === 0 && !gameOver) {
       endGame(score)
@@ -141,15 +141,15 @@ export default function Game({ gameStarted, onGameEndAction }: GameProps) {
     }
   }, [gameStarted, gameOver, timeLeft, score, endGame])
 
-  const handleAnswer = useCallback(async (answer: string) => {
+  const handleAnswer = useCallback(async (answer: Option) => {
     if (gameOver || currentQuestionIndex >= questions.length) return
 
     const currentQuestion = questions[currentQuestionIndex]
     if (answer === currentQuestion.correctAnswer) {
       if (correctSound.current) playSound(correctSound.current)
-      setScore((prevScore) => prevScore + 1)
+      setScore((prevScore: number) => prevScore + 1)
       if (currentQuestionIndex + 1 < questions.length) {
-        setCurrentQuestionIndex((prevIndex) => prevIndex + 1)
+        setCurrentQuestionIndex((prevIndex: number) => prevIndex + 1)
         setTimeLeft(10)
       } else {
         await endGame(score + 1)
@@ -240,39 +240,31 @@ export default function Game({ gameStarted, onGameEndAction }: GameProps) {
             <p className="text-2xl mb-6">{currentQuestion.text}</p>
           </motion.div>
         ) : (
-          <div className="text-center mb-8">
-            <p className="text-xl">Loading question...</p>
-          </div>
+          <div className="text-center">No question found!</div>
         )}
       </AnimatePresence>
-      {currentQuestion && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
-          {currentQuestion.options.map((option, index) => (
-            <motion.button
-              key={`${currentQuestion.id}-${index}`}
-              variants={optionVariants}
-              initial="initial"
-              animate="animate"
-              whileHover="hover"
-              whileTap="tap"
-              transition={{ duration: 0.2, delay: index * 0.1 }}
-              onClick={() => handleAnswer(option)}
-              className="p-4 rounded-lg bg-white border-2 border-gray-200 hover:border-blue-500 text-left text-lg"
-            >
-              {option}
-            </motion.button>
-          ))}
-        </div>
-      )}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.7 }}
-        className="mt-8 text-2xl font-bold"
-      >
-        Current Score: {score}
-      </motion.div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+        {currentQuestion.options.map((option, index) => {
+          if (typeof option === 'string') {
+            return (
+              <motion.button
+                key={`${currentQuestion.id}-${index}`}
+                variants={optionVariants}
+                initial="initial"
+                animate="animate"
+                whileHover="hover"
+                whileTap="tap"
+                transition={{ duration: 0.2, delay: index * 0.1 }}
+                onClick={() => handleAnswer(option)}
+                className="p-4 rounded-lg bg-white border-2 border-gray-200 hover:border-blue-500 text-left text-lg"
+              >
+                {option}
+              </motion.button>
+            )
+          }
+          return null // Skip non-string options
+        })}
+      </div>
     </motion.div>
   )
 }
-
