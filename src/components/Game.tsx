@@ -214,57 +214,58 @@ export default function Game({ gameStarted, onGameEndAction }: GameProps) {
     )
   }
 
-  const currentQuestion = questions[currentQuestionIndex]
+  const currentQuestion =
+  questions.length > currentQuestionIndex
+    ? questions[currentQuestionIndex]
+    : null;
 
+if (!currentQuestion) {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="flex flex-col items-center justify-center min-h-[60vh]"
-    >
-      <div className="mb-4 text-2xl font-bold">Time left: {timeLeft} seconds</div>
-      <AnimatePresence mode="wait">
-        {currentQuestion ? (
-          <motion.div
-            key={currentQuestion.id}
-            variants={questionVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            transition={{ duration: 0.5 }}
-            className="text-center mb-8"
-          >
-            <h2 className="text-3xl font-bold mb-4">Question {currentQuestionIndex + 1} of {questions.length}</h2>
-            <p className="text-xl mb-2">Category: {currentQuestion.category}</p>
-            <p className="text-2xl mb-6">{currentQuestion.text}</p>
-          </motion.div>
-        ) : (
-          <div className="text-center">No question found!</div>
-        )}
-      </AnimatePresence>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-        {currentQuestion.options.map((option, index) => {
-          if (typeof option === 'string') {
-            return (
-              <motion.button
-                key={`${currentQuestion.id}-${index}`}
-                variants={optionVariants}
-                initial="initial"
-                animate="animate"
-                whileHover="hover"
-                whileTap="tap"
-                transition={{ duration: 0.2, delay: index * 0.1 }}
-                onClick={() => handleAnswer(option)}
-                className="p-4 rounded-lg bg-white border-2 border-gray-200 hover:border-blue-500 text-left text-lg"
-              >
-                {option}
-              </motion.button>
-            )
-          }
-          return null // Skip non-string options
-        })}
-      </div>
-    </motion.div>
-  )
+    <div className="text-center">
+      <p>No question found or loading...</p>
+    </div>
+  );
 }
+
+return (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 0.5 }}
+    className="flex flex-col items-center justify-center min-h-[60vh]"
+  >
+    <div className="mb-4 text-2xl font-bold">Time left: {timeLeft} seconds</div>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={currentQuestion.id}
+        variants={questionVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        transition={{ duration: 0.5 }}
+        className="text-center mb-8"
+      >
+        <h2 className="text-3xl font-bold mb-4">Question {currentQuestionIndex + 1} of {questions.length}</h2>
+        <p className="text-xl mb-2">Category: {currentQuestion.category}</p>
+        <p className="text-2xl mb-6">{currentQuestion.text}</p>
+      </motion.div>
+    </AnimatePresence>
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+      {currentQuestion.options?.map((option, index) => (
+        <motion.button
+          key={`${currentQuestion.id}-${index}`}
+          variants={optionVariants}
+          initial="initial"
+          animate="animate"
+          whileHover="hover"
+          whileTap="tap"
+          transition={{ duration: 0.2, delay: index * 0.1 }}
+          onClick={() => handleAnswer(option)}
+          className="p-4 rounded-lg bg-white border-2 border-gray-200 hover:border-blue-500 text-left text-lg"
+        >
+          {option}
+        </motion.button>
+      ))}
+    </div>
+  </motion.div>
+)}

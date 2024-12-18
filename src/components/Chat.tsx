@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { db, auth } from '@/lib/firebase'
@@ -91,7 +89,7 @@ export default function Chat({ roomId }: ChatProps) {
         </button>
       </div>
       <div className="h-64 overflow-y-auto mb-4 p-2 border rounded">
-        {messages.map((message) => (
+        {messages.map((message: Message) => (
           <div key={message.id} className="mb-2">
             <span className="font-bold text-blue-500">{message.username}: </span>
             <span className="text-gray-700">{message.text}</span>
@@ -119,4 +117,3 @@ export default function Chat({ roomId }: ChatProps) {
     </motion.div>
   )
 }
-
